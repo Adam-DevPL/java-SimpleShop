@@ -56,4 +56,21 @@ public class BackofficeServiceImpl implements BackofficeService {
 
         return order.getFinalPrice();
     }
+
+    public List<Product> getProducts() {
+        return products;
+    }
+
+    public List<Order> getOrders() {
+        return orders;
+    }
+
+    public List<Order> getFinishedOrders() {
+        return finishedOrders;
+    }
+
+    public HashMap<String, Double> getDiscounts() {
+        return discounts;
+    }
+
 }
