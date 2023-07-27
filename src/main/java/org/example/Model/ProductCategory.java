@@ -6,4 +6,6 @@ public enum ProductCategory {
     SPORT,
     HEALTH,
     OTHER
+
+
 }

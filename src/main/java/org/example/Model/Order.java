@@ -2,26 +2,23 @@ package org.example.Model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class Order {
-    private final int id;
+    private final String id;
 
-    private final double discount;
+    private final Discount discount;
 
     private final List<Product> products;
 
-    public Order(int id, double discount) {
-        this.id = id;
-        this.discount = discount;
+    public Order(Discount discount) {
+        this.id = UUID.randomUUID().toString();
+        this.discount = discount == null ? Discount.NONE : discount;
         this.products = new ArrayList<>();
     }
 
-    public int getId() {
+    public String getId() {
         return id;
-    }
-
-    public double getDiscount() {
-        return discount;
     }
 
     public List<Product> getProducts() {

@@ -1,8 +1,10 @@
 package org.example.Model;
 
+import java.util.UUID;
+
 public class Product {
 
-    private final int id;
+    private final String id;
 
     private final String name;
 
@@ -12,18 +14,9 @@ public class Product {
 
     private final double tax;
 
-    private final double discount;
+    private final Discount discount;
 
-    public Product(int id, String name, ProductCategory category, int price, double tax, double discount) {
-        this.id = id;
-        this.name = name;
-        this.category = category;
-        this.price = price;
-        this.tax = tax;
-        this.discount = discount;
-    }
-
-    public int getId() {
+    public String getId() {
         return id;
     }
 
@@ -36,6 +29,40 @@ public class Product {
     }
 
     public int getFinalPrice() {
-        return price + (int) (price * tax) - (int) (price * discount);
+        return price + (int) (price * tax) - (int) (price * discount.getDiscount());
+    }
+
+    private Product(ProductBuilder productDto) {
+        this.id = UUID.randomUUID().toString();
+        this.name = productDto.name;
+        this.category = productDto.category;
+        this.price = productDto.price;
+        this.tax = productDto.tax;
+        this.discount = productDto.discount;
+    }
+
+    public static class ProductBuilder {
+
+        private final String name;
+
+        private final ProductCategory category;
+
+        private final int price;
+
+        private final double tax;
+
+        private final Discount discount;
+
+        public ProductBuilder(ProductDto productDto) {
+            this.name = productDto.getName();
+            this.category = productDto.getCategory();
+            this.price = productDto.getPrice();
+            this.tax = productDto.getTax();
+            this.discount = productDto.getDiscount();
+        }
+
+        public Product build() {
+            return new Product(this);
+        }
     }
 }

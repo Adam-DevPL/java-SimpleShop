@@ -1,6 +1,8 @@
 package org.example;
 
+import org.example.Model.Discount;
 import org.example.Model.ProductCategory;
+import org.example.Model.ProductDto;
 import org.example.service.BackofficeService;
 import org.example.service.BackofficeServiceImpl;
 
@@ -9,22 +11,30 @@ public class Main {
 
         System.out.println("Hello world!");
 
+        ProductDto apple = new ProductDto("apple", ProductCategory.FOOD, 100, 0.1, null);
+        ProductDto tv = new ProductDto("tv", ProductCategory.ELECTRONICS, 200, 0.2, Discount.ELECTRONICS);
+        ProductDto tennisBall = new ProductDto("tennis ball", ProductCategory.SPORT, 300, 0.3, Discount.SPORT);
+        ProductDto drugs = new ProductDto("drugs", ProductCategory.HEALTH, 400, 0.4, Discount.HEALTH);
+        ProductDto chair = new ProductDto("chair", ProductCategory.OTHER, 500, 0.5, Discount.OTHER);
+
         BackofficeService backofficeService = new BackofficeServiceImpl();
 
-        backofficeService.addDiscount("discount0", 0);
-        backofficeService.addDiscount("discount1", 0.1);
-        backofficeService.addDiscount("discount2", 0.2);
+        backofficeService.addProductToShop(apple);
+        backofficeService.addProductToShop(tv);
+        backofficeService.addProductToShop(tennisBall);
+        backofficeService.addProductToShop(drugs);
+        backofficeService.addProductToShop(chair);
 
-        backofficeService.addProductToShop(0, "apple", ProductCategory.FOOD, 100, 0.1, backofficeService.getDiscount("discount0"));
-        backofficeService.addProductToShop(1, "tv", ProductCategory.ELECTRONICS, 200, 0.2, backofficeService.getDiscount("discount1"));
-        backofficeService.addProductToShop(2, "tennis ball", ProductCategory.SPORT, 300, 0.3, backofficeService.getDiscount("discount0"));
-        backofficeService.addProductToShop(3, "drugs", ProductCategory.HEALTH, 400, 0.4, backofficeService.getDiscount("discount2"));
-        backofficeService.addProductToShop(4, "chair", ProductCategory.OTHER, 500, 0.5, backofficeService.getDiscount("discount1"));
+        backofficeService.createOrder(null);
 
-        backofficeService.createOrder(0, backofficeService.getDiscount("discount0"));
-        backofficeService.addProductToOrder(0, 0);
-        backofficeService.addProductToOrder(0, 4);
-        int finalPriceForOrder = backofficeService.finishOrder(0);
+        String product1Id = backofficeService.getProducts().get(0).getId();
+        String product2Id = backofficeService.getProducts().get(1).getId();
+
+        String orderId = backofficeService.getOrders().get(0).getId();
+
+        backofficeService.addProductToOrder(orderId, product1Id);
+        backofficeService.addProductToOrder(orderId, product2Id);
+        double finalPriceForOrder = backofficeService.finishOrder(orderId);
 
         System.out.println("Final price for order: " + finalPriceForOrder);
     }

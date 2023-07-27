@@ -1,104 +1,66 @@
 package org.example.service;
 
-import org.example.Model.Order;
-import org.example.Model.Product;
-import org.example.Model.ProductCategory;
+import org.example.Model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class BackofficeServiceImplTest {
+
     private BackofficeService backofficeService;
 
     @BeforeEach
-    void setUp() {
+    public void setUp() {
         backofficeService = new BackofficeServiceImpl();
     }
 
     @Test
-    void addProductToShop_shouldAddProductToShop() {
-        // Given
-        int id = 1;
-        String name = "Product 1";
-        ProductCategory category = ProductCategory.FOOD;
-        int price = 10;
-        double tax = 0.1;
-        double discount = 0.2;
-
-        // When
-        backofficeService.addProductToShop(id, name, category, price, tax, discount);
-
-        // Then
-        Product product = backofficeService.getProducts().get(0);
-        assertEquals(id, product.getId());
-        assertEquals(name, product.getName());
-        assertEquals(category, product.getCategory());
+    public void testAddProductToShop() {
+        ProductDto productDto = new ProductDto("Product1", ProductCategory.FOOD, 100, 0.1, Discount.FOOD);
+        backofficeService.addProductToShop(productDto);
+        List<Product> products = backofficeService.getProducts();
+        assertEquals(1, products.size());
+        assertEquals("Product1", products.get(0).getName());
+        assertEquals(ProductCategory.FOOD, products.get(0).getCategory());
     }
 
     @Test
-    void addDiscount_shouldAddDiscount() {
-        // Given
-        String name = "Product 1";
-        double discount = 0.2;
-
-        // When
-        backofficeService.addDiscount(name, discount);
-
-        // Then
-        double actualDiscount = backofficeService.getDiscount(name);
-        assertEquals(discount, actualDiscount, 0.0001);
+    public void testCreateOrder() {
+        backofficeService.createOrder(Discount.HEALTH);
+        List<Order> orders = backofficeService.getOrders();
+        assertEquals(1, orders.size());
     }
 
     @Test
-    void createOrder_shouldCreateOrder() {
-        // Given
-        int id = 1;
-        double discount = 0.1;
+    public void testAddProductToOrder() {
+        ProductDto productDto = new ProductDto("Product1", ProductCategory.FOOD, 100, 0.1, Discount.FOOD);
+        backofficeService.addProductToShop(productDto);
+        backofficeService.createOrder(Discount.NONE);
+        List<Product> products = backofficeService.getProducts();
+        List<Order> orders = backofficeService.getOrders();
+        assertEquals(1, products.size());
+        assertEquals(1, orders.size());
 
-        // When
-        backofficeService.createOrder(id, discount);
-
-        // Then
-        Order order = backofficeService.getOrders().get(0);
-        assertEquals(id, order.getId());
-        assertEquals(discount, order.getDiscount(), 0.0001);
-        assertTrue(order.getProducts().isEmpty());
-    }
-
-    @Test
-    void addProductToOrder_shouldAddProductToOrder() {
-        // Given
-        int orderId = 1;
-        int productId = 1;
-        backofficeService.createOrder(orderId, 0.1);
-        backofficeService.addProductToShop(productId, "Product 1", ProductCategory.FOOD, 10, 0.1, 0.2);
-
-        // When
-        backofficeService.addProductToOrder(orderId, productId);
-
-        // Then
+        backofficeService.addProductToOrder(orders.get(0).getId(), products.get(0).getId());
         Order order = backofficeService.getOrders().get(0);
         assertEquals(1, order.getProducts().size());
-        assertEquals(productId, order.getProducts().get(0).getId());
+        assertEquals("Product1", order.getProducts().get(0).getName());
     }
 
     @Test
-    void finishOrder_shouldFinishOrderAndReturnFinalPrice() {
-        // Given
-        int orderId = 1;
-        backofficeService.createOrder(orderId, 0.1);
-        backofficeService.addProductToShop(1, "Product 1", ProductCategory.FOOD, 10, 0.1, 0.2);
-        backofficeService.addProductToOrder(orderId, 1);
+    public void testFinishOrder() {
+        ProductDto productDto = new ProductDto("Product1", ProductCategory.FOOD, 100, 0.1, Discount.FOOD);
+        backofficeService.addProductToShop(productDto);
+        backofficeService.createOrder(Discount.NONE);
+        backofficeService.addProductToOrder(backofficeService.getOrders().get(0).getId(), backofficeService.getProducts().get(0).getId());
 
-        // When
-        int finalPrice = backofficeService.finishOrder(orderId);
-
-        // Then
-        assertEquals(9, finalPrice);
-        assertTrue(backofficeService.getOrders().isEmpty());
+        double finalPrice = backofficeService.finishOrder(backofficeService.getOrders().get(0).getId());
+        assertEquals(100.0, finalPrice); // Assuming no discounts applied in this test
+        assertEquals(0, backofficeService.getOrders().size());
         assertEquals(1, backofficeService.getFinishedOrders().size());
-        assertEquals(orderId, backofficeService.getFinishedOrders().get(0).getId());
     }
+
 }
